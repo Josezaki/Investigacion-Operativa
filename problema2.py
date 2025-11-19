@@ -138,7 +138,7 @@ def mmk_metrics(lamb: float, mu_per_server: float, k: int):
 
 
 
-def weighted_metrics(pi: np.ndarray):
+def weighted_metrics(pi: np.ndarray, lamb: float, mu_per_cajero: float, states: dict):
     """
     Calcula las métricas de manera ponderada por la distribución estacionaria π.
     Para cada estado i se computa M/M/k con k = número de cajeros en ese estado.
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     print()
 
     # (b) Métricas por estado y ponderadas
-    df_states, resumen = weighted_metrics(pi)
+    df_states, resumen = weighted_metrics(pi, LAMBDA, MU_POR_CAJERO, STATES)
     print("Métricas por estado (M/M/k):")
     print(df_states.to_string(index=False))
     print("\nMétricas ponderadas por π:")
