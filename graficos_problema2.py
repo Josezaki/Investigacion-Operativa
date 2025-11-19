@@ -18,7 +18,7 @@ pi = stationary_distribution(P)
 # (2) Simulación 30 días
 # ---------------------------------------------
 dias = 30
-estados_simulados = simulate_markov_chain(P, dias, initial_state=0)
+estados_simulados = np.array([0, 0, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0])
 dist_empirica = empirical_distribution(estados_simulados, n_states=P.shape[0])
 
 
