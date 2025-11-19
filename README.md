@@ -3,7 +3,7 @@ En este repositorio se encuentra la solución al Problema 2 de la tarea de Inves
 
 El script *problema2.py* calcula la distribución estacionaria (pi) y las métricas de Teoría de Colas (rho, L, W) ponderadas por esta distribución, simulando finalmente la operación del sistema durante 30 días.
 
-1. Requisitos del Sistema
+# Requisitos del Sistema
 Para ejecutar el código, es necesario tener instalado Python 3.8 o superior, junto con las siguientes librerías:
  - numpy
  - panda
@@ -12,25 +12,42 @@ Para ejecutar el código, es necesario tener instalado Python 3.8 o superior, ju
 # Instalación de dependencias:
 >pip install numpy pandas
 
-2. Ejecución del Código
+# Ejecución del Código
 El script está diseñado para ejecutarse directamente desde la línea de comandos:
 >python problema2.py
 
-# Salida Esperada
-El script generará una salida de consola que incluye:
+El programa entrega en consola:
 
-  1. Distribución estacionaria (pi): El cálculo teórico de la probabilidad a largo plazo para cada estado (Punto a).
+1. Distribución estacionaria (π)
 
-  2. Métricas por Estado: Una tabla de Pandas que muestra rho, L, y W para cada estado (S1, S2, S3).
-  S2 y S3 son saturados (inf).
+Cálculo teórico de la probabilidad de encontrarse en cada estado de disponibilidad de cajeros (Punto a).
 
-   (1.) Métricas Ponderadas: El cálculo del rendimiento promedio general del sistema (Punto b).
+2. Métricas por Estado (M/M/k)
 
-  3. Simulación de 30 Días: La secuencia de estados visitados y la distribución empírica resultante (Punto c).
+Tabla que muestra, para cada estado S1, S2 y S3:
 
+- ρ (utilización)
 
-3. Parámetros Configurables
-El archivo problema2.py permite la modificación sencilla de los parámetros clave en la sección inicial. Esto es fundamental para probar escenarios y justificar el Punto (d) de la tarea.
+- L (número esperado de clientes en el sistema)
+
+- W (tiempo esperado en el sistema)
+
+Los estados S2 y S3 presentan saturación (ρ ≥ 1), por lo que L y W se reportan como ∞.
+
+3. Métricas ponderadas por π
+
+Cálculo del rendimiento promedio general del sistema (Punto b).
+Debido a la saturación parcial, algunas métricas pueden resultar infinitas.
+
+4. Simulación de 30 días
+
+Genera:
+- La secuencia de estados visitados día a día.
+- La distribución empírica resultante (Punto c).
+
+# Parámetros Configurables
+
+El archivo problema2.py permite modificar fácilmente los valores clave en la sección inicial, lo cual es útil para analizar escenarios alternativos e incluir propuestas en el Punto (d) de la tarea.
 
 > LAMBDA = 8.0
 Tasa de llegada de clientes (lambda) [clientes/min]
@@ -51,13 +68,13 @@ Número de pasos de la simulación de Markov (Punto c)
 Semilla para reproducibilidad de la simulación
 
 
-4. Descripción del Modelado y Supuestos
+# Descripción del Modelado y Supuestos
 
-# Modelo
+###  Modelo
 
 El sistema se modela como una Cadena de Markov discreta en tiempo para la disponibilidad de servidores, acoplada a un modelo de Teoría de Colas M/M/k con capacidad infinita para la atención al cliente dentro de cada estado.
 
-# Supuestos Clave
+### Supuestos Clave
 
 1. Modelo de Colas (M/M/k): Se asume que las llegadas de clientes siguen una distribución de Poisson (M) y los tiempos de servicio siguen una distribución Exponencial (M).
 
