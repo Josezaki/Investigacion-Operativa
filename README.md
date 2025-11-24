@@ -14,7 +14,7 @@ Para ejecutar el código, es necesario tener instalado Python 3.8 o superior, ju
 
 # Ejecución del Código
 El script está diseñado para ejecutarse directamente desde la línea de comandos:
->python problema2.py
+>python3 problema2.py
 
 El programa entrega en consola:
 
@@ -47,7 +47,7 @@ Genera:
 
 # Parámetros Configurables
 
-El archivo problema2.py permite modificar fácilmente los valores clave en la sección inicial, lo cual es útil para analizar escenarios alternativos e incluir propuestas en el Punto (d) de la tarea.
+El archivo problema2.py permite modificar fácilmente los valores clave en la sección inicial, lo cual es útil para analizar escenarios alternativos e incluir propuestas en el Punto (d) de la tarea. A continuacion, se muestran los parametros que estan por predeterminados en el codigo: 
 
 > LAMBDA = 8.0
 Tasa de llegada de clientes (lambda) [clientes/min]
@@ -67,7 +67,9 @@ Número de pasos de la simulación de Markov (Punto c)
 > np.random.seed() = 42
 Semilla para reproducibilidad de la simulación
 
+Para probar estos parametros configurables, se muestra a continuacion un ejemplo de ejecucion, con sus respectivos parametros
 
+>  python3 problema2.py --lambda_ 7.0 --mu 5.0 --dias 20 --seed 1
 # Descripción del Modelado y Supuestos
 
 ###  Modelo
