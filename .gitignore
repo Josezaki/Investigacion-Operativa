@@ -1,18 +1,25 @@
-# Entornos virtuales
-.venv/
+# Entorno virtual de Python
 venv/
+ENV/
 env/
+.venv/
 
-# Cachés Python
+# Caché de Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Archivos generados
+# Archivos temporales
+*.log
+*.tmp
+
+# Archivos de gráficos generados
 *.png
 
-# Archivos de logs
-*.log
-
-# Configuración de IDE
+# Archivos creados por el IDE
 .vscode/
 .idea/
+
+# Archivos del sistema
+.DS_Store
