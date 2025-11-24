@@ -1,28 +1,38 @@
-"""
-Problema 2 — Cajeros automáticos con disponibilidad variable
-M/M/k + cadena de Markov discreta
-"""
+# ---------------------------------------------------------------
+# Problema 2 — Cajeros automáticos con disponibilidad variable
+# M/M/k + Cadena de Markov discreta
+# ---------------------------------------------------------------
+# Este código implementa:
+#  (a) Cálculo de la distribución estacionaria π de una cadena de Markov.
+#  (b) Cálculo de métricas de teoría de colas M/M/k por estado.
+#  (c) Cálculo ponderado de métricas usando π.
+#  (d) Simulación de 30 días de la cadena de Markov.
+# Además incorpora argparse para permitir cambiar parámetros desde consola.
+# ---------------------------------------------------------------
 
 import numpy as np
 import pandas as pd
 from math import factorial
 import argparse
 
-
 # -------------------------------------------------------------------
-# Funciones de Cálculo
+# (a) Cálculo de la distribución estacionaria
+# -------------------------------------------------------------------
+# Se resuelve el sistema πP = π con la condición sum(π) = 1.
+# Para ello se construye un sistema lineal equivalente basado en (P^T − I).
+# La última ecuación se reemplaza por la normalización de π.
 # -------------------------------------------------------------------
 
 def stationary_distribution(P: np.ndarray) -> np.ndarray:
-    """
-    Calcula la distribución estacionaria π de una cadena de Markov.
-    Resuelve πP = π junto con sum(π) = 1.
-    """
     n_states = P.shape[0]
 
+    # Matriz del sistema A = P^T − I
     A = (P.T - np.identity(n_states))
+
+    # La última fila se reemplaza por [1,1,...,1] para imponer sum(pi)=1
     A[-1, :] = 1.0
 
+    # Vector del lado derecho: solo el último elemento es 1
     b = np.zeros(n_states)
     b[-1] = 1.0
 
@@ -34,49 +44,56 @@ def stationary_distribution(P: np.ndarray) -> np.ndarray:
 
     return pi
 
+# -------------------------------------------------------------------
+# (b) Cálculo de métricas M/M/k
+# -------------------------------------------------------------------
+# Para cada estado se modela un sistema M/M/k.
+# Si rho >= 1, el sistema está saturado y L, W → ∞.
+# -------------------------------------------------------------------
 
 def mmk_metrics(lamb: float, mu: float, k: int):
-    """
-    Calcula métricas estándar de M/M/k: rho, L, W.
-    Si rho >= 1, retorna métricas infinitas.
-    """
     mu_sys_rate = k * mu
     rho = lamb / mu_sys_rate
 
+    # Si rho >= 1, el sistema no es estable
     if rho >= 1 or k <= 0:
         return {'rho': rho, 'L': np.inf, 'W': np.inf}
 
-    a = lamb / mu  # parámetro carga por servidor
+    # a = carga ofrecida al sistema por cada servidor
+    a = lamb / mu
 
+    # Cálculo de P0 (probabilidad de 0 clientes en el sistema)
     sum_term = sum((a**n) / factorial(n) for n in range(k))
     queue_term = (a**k / factorial(k)) * (1 / (1 - rho))
-
     P0 = 1 / (sum_term + queue_term)
 
-    # Lq fórmula estándar
+    # Fórmula estándar de Lq para M/M/k
     Lq = (P0 * lamb * mu * (a**k)) / (factorial(k - 1) * (mu_sys_rate - lamb)**2)
 
+    # Tiempos de espera
     Wq = Lq / lamb
     W = Wq + (1 / mu)
     L = lamb * W
 
     return {'rho': rho, 'L': L, 'W': W}
 
+# -------------------------------------------------------------------
+# (b) Métricas ponderadas usando la distribución estacionaria π
+# -------------------------------------------------------------------
+# Para cada estado se calcula M/M/k y luego se pondera por π.
+# Si algún estado con π>0 está saturado, los valores agregados se vuelven ∞.
+# -------------------------------------------------------------------
 
 def weighted_metrics(pi, lamb, mu, states):
-    """
-    Métricas ponderadas por π.
-    """
     data = []
 
     for i in range(len(pi)):
-        k = states[i]
+        k = states[i]  # número de cajeros en el estado
         metrics = mmk_metrics(lamb, mu, k)
 
         metrics['pi'] = pi[i]
         metrics['k'] = k
         metrics['Estado'] = f"S{i+1}"
-
         data.append(metrics)
 
     df = pd.DataFrame(data)
@@ -100,11 +117,14 @@ def weighted_metrics(pi, lamb, mu, states):
     df = df[['Estado', 'k', 'pi', 'rho', 'L', 'W']]
     return df, resumen
 
+# -------------------------------------------------------------------
+# (c) Simulación de la cadena de Markov
+# -------------------------------------------------------------------
+# Se simulan cambios de estado durante 'days' pasos.
+# En cada paso se elige el siguiente estado según las probabilidades de P.
+# -------------------------------------------------------------------
 
 def simulate_markov_chain(P, days, initial_state=0, seed=None):
-    """
-    Simula una cadena de Markov por 'days' pasos.
-    """
     if seed is not None:
         np.random.seed(seed)
 
@@ -119,14 +139,14 @@ def simulate_markov_chain(P, days, initial_state=0, seed=None):
 
     return states
 
+# Distribución empírica
 
 def empirical_distribution(sim_states, n_states):
     counts = np.bincount(sim_states, minlength=n_states)
     return counts / counts.sum()
 
-
 # -------------------------------------------------------------------
-# MAIN con argparse
+# MAIN — argparse para parámetros configurables
 # -------------------------------------------------------------------
 
 if __name__ == "__main__":
@@ -135,6 +155,7 @@ if __name__ == "__main__":
         description="Problema 2 — Cajeros automáticos M/M/k + Markov"
     )
 
+    # Parámetros ajustables desde consola
     parser.add_argument("--lambda_", type=float, default=8.0,
                         help="Tasa de llegada λ (clientes/min). Default = 8.0")
 
@@ -152,13 +173,14 @@ if __name__ == "__main__":
     # Estados fijos del problema
     STATES = {0: 3, 1: 2, 2: 1}
 
+    # Matriz de transición
     P = np.array([
         [0.6, 0.3, 0.1],
         [0.2, 0.6, 0.2],
         [0.1, 0.2, 0.7],
     ])
 
-    # Mostrar parámetros elegidos
+    # Mostrar parámetros usados
     print("\n---------------------------------------")
     print("Usted eligió los siguientes parámetros:")
     print(f"λ (lambda)           : {args.lambda_}")
@@ -172,10 +194,9 @@ if __name__ == "__main__":
     print("Distribución estacionaria π:")
     for i, p in enumerate(pi):
         print(f"  S{i+1}: {p:.4f}")
-
     print()
 
-    # (b) Métricas ponderadas
+    # (b) Métricas por estado + ponderadas
     df, resumen = weighted_metrics(pi, args.lambda_, args.mu, STATES)
 
     print("Métricas por estado:")
@@ -184,10 +205,9 @@ if __name__ == "__main__":
     print("\nMétricas ponderadas por π:")
     for k, v in resumen.items():
         print(f"  {k}: {v}")
-
     print()
 
-    # (c) Simulación de la cadena durante n días
+    # (c) Simulación
     sim = simulate_markov_chain(P, args.dias, seed=args.seed)
     dist_emp = empirical_distribution(sim, len(pi))
 
